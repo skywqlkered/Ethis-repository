@@ -16,10 +16,10 @@ async def on_ready():
     print('We have logged in as {0.user}'.format(client))
 
 @client.event
-async def on_message(Message):
-    print(f"Hi {Message.user}")
-    if Message == "Hello":
-        print(f"Hi {Message.user}")
+async def on_message(message: discord.Message):
+    print(f"Hi {message.author}")
+    if message == "Hello":
+        print(f"Hi {message.author}")
 
 if TOKEN:
     client.run(TOKEN)
