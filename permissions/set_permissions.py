@@ -34,7 +34,7 @@ async def set_channel_permission(guild: discord.Guild):
             for channel in category.channels:
                 if channel.id in [926102810930589726, 1482000660844249210, 1482000317024567327]:
                     continue
-                await channel.set_permissions(role, overwrite=override_everyone)
+                await channel.set_permissions(role, overwrite=override_everyone) #type: ignore
     
         
         
