@@ -44,7 +44,7 @@ A <@&1261617495954034698> member will look at your ticket, please have patience!
 **Tell us more about yourself! Share your hobbies, a fun fact, or anything else you'd like us to know!**
 
 
-**We are very event-driven and we hope you participate and enjoy our events, what would a good server event look like to you?**
+**Ethis hosts many types of events. If you were to host your own, what would it look like?**
 ``` 
 
 
