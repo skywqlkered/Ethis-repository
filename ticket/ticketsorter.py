@@ -96,4 +96,7 @@ async def on_message(message):
 # #
 #         print("done reversing")
 
-client.run(TOKEN)
+if TOKEN:
+    client.run(TOKEN)
+else:
+    raise ReferenceError("TOKEN doesnt exist")
