@@ -6,7 +6,7 @@ from mcname_api import get_uuid
 import datetime
 
 load_dotenv()
-TOKEN = os.getenv("DISCORD_TOKEN")
+TOKEN = os.getenv("STATS_TOKEN")
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 
@@ -25,20 +25,38 @@ def parse_message(msg: discord.Message) -> tuple[bool, str]:
     Returns:
         tuple[bool,str]: [0]: true if successfull; false otherwise
                          [1]: text output of operation
+                        
     """
     splits = msg.content.split(" ")
     name = splits[0]
+    rest = splits[1:]
     action = None
-    if "joined" in splits[-1]:
-        action = 1
-    if splits[-1] == "left":
-        action = 0
-
-    # print(splits)
     created_at = msg.created_at
+
+    # join leave entry:
+    if "joined" in rest:
+        action = 1
+    elif "left" in rest or "timed" in rest:
+        action = 0
+    
+    if action in [0, 1]:
+        return create_data_entry(username=name, action=action, date=created_at)
+    
+    # start/stop entry
+    if "Started!" in rest:
+        action = 2
+    
+    elif "Stopped!" in rest:
+        action = 3
+    
+    if action in [2, 3]:
+        return create_data_entry(username="Server", action=action, date=created_at)
+    # print(name + "\t" + " ".join(rest))
+    # print(splits)
     # print(created_at)
 
-    return create_data_entry(username=name, action=action, date=created_at)
+
+    
 
 
 def convert_time(date_obj: datetime.datetime) -> str:
@@ -52,16 +70,16 @@ def convert_time(date_obj: datetime.datetime) -> str:
     """
     date = date_obj.strftime("%d/%m/%Y")
     time = date_obj.strftime("%H:%M:%S")
-    return str((date, time))
+    return str((date + ";" +time))
 
-
-def write_csv_entry(entry: str):
+def write_csv_entry(entry: str, filename):
     """Appends a given entry to the csv file 
 
     Args:
         entry (str): a string with the log in/out time and the fetched the uuid of a username 
     """
-    with open("./ingame-activty/raw_activity.csv", "a") as f:
+    print(f"Written entry: {entry}")
+    with open(f"./ingame-activty/{filename}", "a") as f:
         f.write(entry + "\n")
 
 
@@ -79,21 +97,36 @@ def create_data_entry(
         tuple[bool, str]: [0]: true if successfull; false otherwise
                           [1]: text output of operation
     """
-    print(f"action = {action}")
+    if action in [0, 1, 2]:
+        print(f"action = {action}")
     entry = ""
-    id: str | bool = get_uuid(username)
+    if username != "Server":
+        id: str | bool = get_uuid(username)
+    else: 
+        id = "0"
+    
     if not id:  # means status code didnt return 200
         return False, "MC-username not found"
     date_entry: str = convert_time(date)
     if action == 1:  # action = join
         entry = ",".join([id, username, date_entry, "0"])  # type: ignore
-        write_csv_entry(entry)
+        write_csv_entry(entry, "raw_activity.csv")
         return True, "Join entry written"
 
     elif action == 0:  # action = leave
         entry = ",".join([id, username, "0", date_entry])  # type: ignore
-        write_csv_entry(entry)
+        write_csv_entry(entry, "raw_activity.csv")
         return True, "Leave entry written"
+
+    elif action == 2:
+        entry = ",".join(["Start", date_entry])  # type: ignore
+        write_csv_entry(entry, "server_actions.csv")
+        return True, "Start entry written"
+
+    elif action == 3:
+        entry = ",".join(["Stop", date_entry])  # type: ignore
+        write_csv_entry(entry, "server_actions.csv")
+        return True, "Stop entry written"
 
     else:
         return False, "action wasnt clear"
@@ -119,17 +152,39 @@ async def on_message(message: discord.Message):
     #             return
     #         mesg = await channel_msg.fetch_message(msg_id_int)
     #         parse_message(mesg)
-
-    if (
-        message.channel.id == id_staff_bot
-        and message.author.id == id_sky
-        and not message.webhook_id
-    ):  # basically only the achievements and leave and join
-        output = parse_message(message)
-        if not output[0] and message.guild:
-            await message.guild.get_channel(id_staff_bot).send(  # type:ignore
-                output[1] + message.to_reference().jump_url
-            ) 
+    
+    channel = message.guild.get_channel(1011667712247857222) # type:ignore
+    oldest_message = await channel.fetch_message(1516588773301817466) # type:ignore
+    if message.content.startswith("/scrape") and message.author.id == 398769543482179585:
+        async for message in channel.history(limit=None, oldest_first=True, after=oldest_message.created_at): #type:ignore
+            if message.webhook_id and message.author.id == id_botclient and message.author.display_name == "Ethis Server":
+                output = parse_message(message)
+            
+    # if (
+    #     message.channel.id == id_mc_chat_channel
+    #     and message.author.id == id_botclient
+    #     and message.webhook_id
+    #     and message.author.display_name == "Ethis Server"
+    # ):  # basically only the achievements and leave and join
+    #     output = parse_message(message)
+    #     if not output[0] and message.guild:
+    #         print(  # type:ignore
+    #             output[1] + message.to_reference().jump_url
+    #         ) 
+    
+    
+    
+    ### OLD:
+        # if message.author.id != 398769543482179585:
+    #     return
+    
+    # message_id = int(message.content)
+    
+    # message = await channel.fetch_message(message_id)
+    #             # if not output[0] and message.guild:
+    #             #     print(  # type:ignore
+    #             #         output[1] + message.to_reference().jump_url
+    #             #     ) 
 
 if TOKEN:
     client.run(TOKEN)
