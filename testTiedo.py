@@ -7,7 +7,6 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
-speaker: int = 0
 
 @client.event
 async def on_ready():
@@ -18,16 +17,21 @@ async def on_message(message: discord.Message):
     if message.author == client.user: # Prevents the bot to reply to itself
         return
     
-    role: discord.Role | None = message.guild.get_role(1262396628539670538)
+    presentation_role: discord.Role | None = message.guild.get_role(1262396628539670538)
 
-    if not role:
+    if not presentation_role:
         return
     
-    if role in message.author.roles:
+    if presentation_role in message.author.roles:
         print("This role is staff")
     else:
         print("Role isn't staff!")
     
+    if message.content.startswith("/roles"):
+        get_role_names: list = message.guild.get_role(1534534278594035853).members
+
+        await message.reply(f"Deze mensen hebben de presentatie rol: {get_role_names}")
+
     if message.content.startswith("/make-speaker"):
         len_men = len(message.mentions)
 
@@ -37,12 +41,17 @@ async def on_message(message: discord.Message):
         if len_men == 0:
             return None
         if len_men == 1:
-            user = message.mentions[0].id
-            print(user)
-            print(message.guild.get_role(1534534278594035853).members)
+            presentation_role: list = message.guild.get_role(1534534278594035853)
+
+            print("Getting user id from mention")
+            selected_member: discord.Member = message.mentions[0]
+            print(f"User uit mention: {selected_member}")
             
+            await selected_member.add_roles(presentation_role)
+
             await message.reply(f"{message.mentions[0].mention} you are now speaker")
             print("You are the speaker now!!!")
+
         if len_men >= 2:
             print("To many mentions, cant unmute more 2 people")
             return None
