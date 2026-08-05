@@ -37,9 +37,14 @@ async def on_message(message: discord.Message):
         if len_men == 0:
             return None
         if len_men == 1:
+            user = message.mentions[0].id
+            print(user)
+            print(message.guild.get_role(1534534278594035853).members)
+            
             await message.reply(f"{message.mentions[0].mention} you are now speaker")
             print("You are the speaker now!!!")
         if len_men >= 2:
+            print("To many mentions, cant unmute more 2 people")
             return None
 
 if TOKEN:
