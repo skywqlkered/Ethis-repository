@@ -16,6 +16,14 @@ async def give_speaker_role(message: discord.Message):
     
     await selected_member.add_roles(speaker_role)
 
+async def remove_speaker_roles(message: discord.Message):
+    speaker_role: list = message.guild.get_role(1534534278594035853)
+
+    selected_member: discord.Member = message.mentions[0]
+    print(f"User uit mention: {selected_member}")
+    
+    await selected_member.remove_roles(speaker_role)
+
 @client.event
 async def on_ready():
     print(f'We have logged in as {client.user}')
@@ -45,8 +53,9 @@ async def on_message(message: discord.Message):
             await message.reply("Please only select one person")
             return None
 
-    # if message.content.startswith("/remove-speaker"):
-    #     e
+    if message.content.startswith("/remove-speaker"):
+        await remove_speaker_roles(message)
+        await message.reply("Removed \"Speaker-Role\" from all Users")
 
 if TOKEN:
     client.run(TOKEN)
