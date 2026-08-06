@@ -11,18 +11,15 @@ client = discord.Client(intents=intents)
 async def give_speaker_role(message: discord.Message):
     speaker_role: list = message.guild.get_role(1534534278594035853)
 
-    selected_member: discord.Member = message.mentions[0]
-    print(f"User uit mention: {selected_member}")
-    
+    selected_member: discord.Member = message.mentions[0]    
     await selected_member.add_roles(speaker_role)
 
 async def remove_speaker_roles(message: discord.Message):
-    speaker_role: list = message.guild.get_role(1534534278594035853)
-
-    selected_member: discord.Member = message.mentions[0]
-    print(f"User uit mention: {selected_member}")
+    speaker_role: discord.Role = message.guild.get_role(1534534278594035853)
+    selected_members = speaker_role.members
     
-    await selected_member.remove_roles(speaker_role)
+    for member in selected_members:
+        await member.remove_roles(speaker_role)
 
 @client.event
 async def on_ready():
