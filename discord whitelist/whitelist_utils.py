@@ -32,19 +32,19 @@ class Whitelist:
             sftp.close()
             transport.close()
             
-            self.data: dict = data
+            self.members: dict = data
         
         except Exception as e:  # noqa: BLE001
             print("connection failed:", e)
 
-        if not self.data:
+        if not self.members:
             raise SystemError("Whitelist data could not be extracted")
     
     @property
     def usernames(self):
-        return [user_tup["name"] for user_tup in self.data]
+        return [user_tup["name"] for user_tup in self.members]
     
     @property
     def uuids(self):
-        return [user_tup["uuid"] for user_tup in self.data]
+        return [user_tup["uuid"] for user_tup in self.members]
         
