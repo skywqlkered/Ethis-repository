@@ -1,28 +1,21 @@
+import ftplib
+import os
+import sys
+import socket
 
-myname = "jan"
+from dotenv import load_dotenv
 
-names= ["jan", "frank", "gertrude", "benjamin"]
+load_dotenv()
 
-# # optie 1
-# for name in names:
-#     print(name)
-#     if name == myname:
-#         # print("omg thats me")
-#         break
+# Fill Required Information
+HOSTNAME = os.getenv("FTP_HOST")
+USERNAME = os.getenv("FTP_USERNAME")
+PASSWORD = os.getenv("FTP_PASSWORD")
+
+if not HOSTNAME or not USERNAME or not PASSWORD:
+    raise ValueError("FTP credentials are not defined.")
 
 
-# optie 2:
-if role in roles:
-    print("omg im in here")
-    
-    
-if names.__contains__(myname):
-    print("thats still me")
-    
-    
-    message.mentions[0]
-    message = type message
-    message.mentions = type list
-    message.mentions[0].mention = type User
-    
-    user.mention 
+
+
+x = socket.getaddrinfo(HOSTNAME, 2022)
